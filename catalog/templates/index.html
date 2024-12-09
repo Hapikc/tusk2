@@ -16,17 +16,22 @@
 box-shadow">
         <h5 class="mr-md-auto p-2">DISIGN4U</h5>
         {% if user.is_authenticated %}
-        <a class="p-2 text-dark" href="{% url 'profile' %}">Профиль</a>
-        <a class="p-2 text-dark" href="{% url 'logout' %}">Выйти</a>
+        <a style="margin-top:3px" class="p-2 text-dark" href="{% url 'catalog:profile' %}">Профиль</a>
+        <form class="p-2 text-dark" action="{% url 'catalog:logout' %}" method="POST">
+            {% csrf_token %}
+        <button class="dropdown-item" type="submit">Выйти</button>
+        </form>
         {% else %}
-        <a class="p-2 text-dark" href="#">Регистрация</a>
-        <a class="p-2 text-dark" href="{% url 'login' %}">Вход</a>
+        <form action="{% url 'catalog:register' %}">
+        <button style="border:none; background-color: #fff;" type="submit" class="p-2 text-dark">Регистрация</button>
+        </form>
+        <a class="p-2 text-dark" href="{% url 'catalog:login' %}">Вход</a>
         {% endif %}
 
     </div>
     <div class="row">
         <nav class="col-md-auto nav flex-column" style="margin-left: 35px">
-            <a style="color: black" class="nav-link root" href="{% url 'index' %} ">Главная</a>
+            <a style="color: black" class="nav-link root" href="{% url 'catalog:index' %} ">Главная</a>
         </nav>
         <div class="container">
             {% bootstrap_messages %}
