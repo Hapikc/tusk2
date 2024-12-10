@@ -10,7 +10,7 @@ class ChangeUserInfoForm(forms.ModelForm):
 
    class Meta:
        model = AdvUser
-       fields = ('username', 'email', 'fio')
+       fields = ('username', 'email', 'last_name', 'first_name', 'patronymic')
 
 class RegisterUserForm(forms.ModelForm):
     email = forms.EmailField(required=True, label='Адрес электронной почты', validators=[
@@ -24,22 +24,40 @@ class RegisterUserForm(forms.ModelForm):
         label='Пароль',
         widget=forms.PasswordInput, help_text=password_validation.password_validators_help_text_html()
     )
+
     password2 = forms.CharField(
         label='Пароль (повторно)',
         widget=forms.PasswordInput, help_text='Повторите тот же самый пароль еще раз'
     )
-    fio = forms.CharField(label='ФИО', max_length=100, validators=[
+
+    last_name = forms.CharField(label='Фамилия', max_length=100, validators=[
         RegexValidator(
             regex=r'^[а-яА-ЯёЁ\s-]+$',
-            message='ФИО должно состоять только из кириллических букв, пробелов и дефисов.'
+            message='Фафмилия должно состоять только из кириллических букв, пробелов и дефисов.'
         )
     ])
+
+    first_name = forms.CharField(label='Имя', max_length=100, validators=[
+        RegexValidator(
+            regex=r'^[а-яА-ЯёЁ\s-]+$',
+            message='Имя должно состоять только из кириллических букв, пробелов и дефисов.'
+        )
+    ])
+
+    patronymic = forms.CharField(label='Отчество', max_length=100, validators=[
+        RegexValidator(
+            regex=r'^[а-яА-ЯёЁ\s-]+$',
+            message='Очество должно состоять только из кириллических букв, пробелов и дефисов.'
+        )
+    ])
+
     username = forms.CharField(label='Логин', max_length=30, validators=[
         RegexValidator(
             regex=r'^[a-zA-Z-]+$',
             message='Логин должен состоять только из латинских букв и дефисов.'
         )
     ])
+
     consent = forms.BooleanField(label='Согласие на обработку персональных данных')
 
 
@@ -49,8 +67,8 @@ class RegisterUserForm(forms.ModelForm):
             password_validation.validate_password(password1)
         return password1
 
-    def clean(self):
-        super().clean()
+    def clean(self): #Метод проверки, если не проходит валидацию, то оччищает данные
+        super().clean() #встроенная функция, которая позволяет вызывать методы родительского класса.
         password1 = self.cleaned_data.get('password1')
         password2 = self.cleaned_data.get('password2')
 
@@ -69,4 +87,4 @@ class RegisterUserForm(forms.ModelForm):
 
     class Meta:
         model = AdvUser
-        fields = ('username', 'fio', 'email', 'password1', 'password2')
+        fields = ('username', 'last_name', 'first_name', 'patronymic', 'email', 'password1', 'password2')
