@@ -30,26 +30,49 @@
     </div>
 </div>
 
-<input style="margin-left: 286px" type="checkbox" name="consent" id="consent" disabled>
-<a href="#" data-toggle="modal" data-target="#agreementModal">Согласие на обработку персональных данных</a>
+ <input style="margin-left: 286px" type="checkbox" name="consent" id="consent" disabled>
+    <span id="consent-label" style="color: black;">Согласие на обработку персональных данных</span>
+    <a href="#" data-toggle="modal" data-target="#agreementModal">Прочитать соглашение</a>
     {% buttons submit='Зарегистрироваться' %} {% endbuttons %}
 </form>
 <script>
-    document.getElementById('modal-consent').addEventListener('change', function() {
-        if (this.checked) {
-            document.getElementById('consent').removeAttribute('disabled');
+    // Функция для проверки состояния чекбокса
+    function checkConsentState() {
+        const consentCheckbox = document.getElementById('consent');
+        const consentLabel = document.getElementById('consent-label');
+
+        if (consentCheckbox.disabled || !consentCheckbox.checked) {
+            consentLabel.style.color = 'red'; // Меняем цвет текста на красный
         } else {
-            document.getElementById('consent').setAttribute('disabled', 'disabled');
+            consentLabel.style.color = 'black'; // Возвращаем стандартный цвет
+        }
+    }
+
+    // Проверяем состояние чекбокса при загрузке страницы
+    checkConsentState();
+
+    // Обработчик для кнопки "Согласиться"
+    document.getElementById('agree-btn').addEventListener('click', function () {
+        const modalConsent = document.getElementById('modal-consent');
+        const consentCheckbox = document.getElementById('consent');
+
+        if (modalConsent.checked) {
+            consentCheckbox.checked = true;
+            consentCheckbox.removeAttribute('disabled');
+            $('#agreementModal').modal('hide');
+            checkConsentState(); // Проверяем состояние чекбокса
+        } else {
+            alert('Пожалуйста, подтвердите согласие.');
         }
     });
 
-    document.getElementById('agree-btn').addEventListener('click', function() {
-        if (document.getElementById('modal-consent').checked) {
-            document.getElementById('consent').checked = true;
-            document.getElementById('consent').removeAttribute('disabled');
-            $('#agreementModal').modal('hide');
-        } else {
-            alert('Пожалуйста, подтвердите согласие.');
+    // Проверяем состояние чекбокса при отправке формы
+    document.getElementById('registrationForm').addEventListener('submit', function (event) {
+        const consentCheckbox = document.getElementById('consent');
+
+        if (consentCheckbox.disabled || !consentCheckbox.checked) {
+            event.preventDefault(); // Предотвращаем отправку формы
+            checkConsentState(); // Убеждаемся, что текст красный
         }
     });
 </script>
