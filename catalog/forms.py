@@ -3,6 +3,8 @@ from django.contrib.auth import password_validation
 from django.core.exceptions import ValidationError
 from .models import AdvUser
 from django.core.validators import RegexValidator
+from django.shortcuts import render
+
 
 
 class ChangeUserInfoForm(forms.ModelForm):
@@ -58,8 +60,6 @@ class RegisterUserForm(forms.ModelForm):
         )
     ])
 
-    consent = forms.BooleanField(label='Согласие на обработку персональных данных')
-
 
     def clean_password1(self):
         password1 = self.cleaned_data.get('password1')
@@ -68,23 +68,37 @@ class RegisterUserForm(forms.ModelForm):
         return password1
 
     def clean(self): #Метод проверки, если не проходит валидацию, то оччищает данные
+
         super().clean() #встроенная функция, которая позволяет вызывать методы родительского класса.
-        password1 = self.cleaned_data.get('password1')
+
+        password1 = self.cleaned_data.get('password1') #cleaned_data — это словарь, который содержит
+        # валидированные данные из формы. Он доступен только после вызова метода is_valid() и только если данные прошли
+        # валидацию.
+
         password2 = self.cleaned_data.get('password2')
 
         if password1 and password2 and password1 != password2:
-            self.add_error('password2', ValidationError(
+            self.add_error('password2', ValidationError(  # add_error используется для добавления пользовательских
+                # сообщений об ошибках в форму.
                 'Введенные пароли не совпадают.'
             ))
+
+        cleaned_data = super().clean()
+        if not cleaned_data.get('consent'):
+            self.add_error('consent', ValidationError('Вы должны согласиться с условиями.'))
+        return cleaned_data
 
 
     def save(self, commit=True):
         user = super().save(commit=False)
         user.set_password(self.cleaned_data['password1'])
-        if commit:
+        if commit:  # commit - флаг для сохранения в бд
             user.save()
         return user
 
     class Meta:
         model = AdvUser
-        fields = ('username', 'last_name', 'first_name', 'patronymic', 'email', 'password1', 'password2')
+        fields = ('username', 'last_name', 'first_name', 'patronymic', 'email', 'password1', 'password2', 'consent')
+        widgets = {
+            'consent': forms.HiddenInput(),
+        }

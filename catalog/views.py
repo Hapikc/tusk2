@@ -34,3 +34,4 @@ class RegisterUserView(CreateView):
 
 class RegisterDoneView(TemplateView):
     template_name = 'registration/register_done.html'
+

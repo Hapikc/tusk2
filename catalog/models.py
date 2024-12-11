@@ -7,6 +7,8 @@ class AdvUser(AbstractUser):
    last_name = models.CharField(max_length=100, blank=True, verbose_name='Фамилия')
    first_name = models.CharField(max_length=100, blank=True, verbose_name='Имя')
    patronymic = models.CharField(max_length=100, blank=True, verbose_name='Отчество')
+   consent = models.BooleanField(default=False, verbose_name='Согласие на обработку персональных данных')
+
 
    class Meta(AbstractUser.Meta):
        pass
