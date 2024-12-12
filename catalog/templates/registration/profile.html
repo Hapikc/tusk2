@@ -2,10 +2,61 @@
 {% load bootstrap4 %}
 {% block title %} Профиль пользователя {% endblock %}
 {% block content %}
-<h2>Профиль пользователя {{ user.username }}</h2>
-{% if user.first_name and user.last_name %}
-<p>Здравствуйте, {{ user.first_name }} {{ user.last_name }} </p>
-{% else %}
-<p>Здравствуйте! </p>
-{% endif %}
+<style>
+    .app-img {
+        height: 200px;
+        object-fit: cover;
+    }
+</style>
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-12">
+            <h2>Профиль пользователя {{ user.username }}</h2>
+            {% if user.first_name and user.last_name %}
+            <p>Здравствуйте, {{ user.first_name }} {{ user.last_name }} </p>
+            {% else %}
+            <p>Здравствуйте! </p>
+            {% endif %}
+        </div>
+    </div>
+    <div class="row justify-content-center mb-4">
+        <div class="col-md-6 text-center">
+            <form action="{% url 'catalog:create_application' %}" method="POST">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary">Создать заявку</button>
+            </form>
+        </div>
+    </div>
+    <h2>Мои заявки</h2>
+    {% if applications %}
+    <div class="row">
+        {% for application in applications %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card">
+                {% if application.photo %}
+                <img src="{{ application.photo.url }}" class="card-img-top app-img" alt="Фото заявки">
+                {% else %}
+                <img src="path_to_default_image" class="card-img-top app-img" alt="Фото заявки">
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ application.name }}</h5>
+                    <p class="card-text">{{ application.description }}</p>
+                    <p class="card-text">Статус: {{ application.get_status_display }}</p>
+                    <p class="card-text">Категории: {{ application.categories.all|join:', ' }}</p>
+                </div>
+                <div class="card-footer text-center">
+                    <a href="{% url 'catalog:delete_application' application.id %}" class="btn btn-danger">Удалить</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="row">
+        <div class="col-12">
+            <p class="text-center">У вас нет заявок.</p>
+        </div>
+    </div>
+    {% endif %}
+</div>
 {% endblock %}

@@ -3,7 +3,7 @@ from django.contrib.auth import password_validation
 from django.core.exceptions import ValidationError
 from .models import AdvUser
 from django.core.validators import RegexValidator
-from django.shortcuts import render
+from .models import Application, Categories
 
 
 
@@ -99,6 +99,24 @@ class RegisterUserForm(forms.ModelForm):
     class Meta:
         model = AdvUser
         fields = ('username', 'last_name', 'first_name', 'patronymic', 'email', 'password1', 'password2', 'consent')
-        widgets = {
+        widgets = {   #Отвечает за генерацию полей форм в html, можно задавать разные сво-ва и параметры
             'consent': forms.HiddenInput(),
         }
+
+class ApplicationForm(forms.ModelForm):
+    categories = forms.ModelMultipleChoiceField(
+        queryset=Categories.objects.all(),
+        widget=forms.CheckboxSelectMultiple
+    )
+
+    class Meta:
+        model = Application
+        fields = ('name', 'description', 'categories', 'photo')
+
+    def clean_photo(self):
+        photo = self.cleaned_data.get('photo')
+        if photo and photo.size > 2 * 1024 * 1024:
+            raise forms.ValidationError("Размер фото не должен превышать 2 Мб.")
+        if photo.image.format.lower() not in ['jpeg', 'jpg', 'png', 'bmp']:
+            raise forms.ValidationError("Формат фото должен быть: jpeg, jpg, png, bmp")
+        return photo
