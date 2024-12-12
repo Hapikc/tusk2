@@ -28,7 +28,8 @@ class Application(models.Model):
    name = models.CharField(max_length=100, blank=True,verbose_name='Название')
    description = models.TextField(max_length=100, verbose_name='описание')
    categories = models.ManyToManyField(Categories, help_text='Описание')
-   photo = models.FileField(upload_to='photos/')
+   price = models.DecimalField(max_digits=10, decimal_places=2, null=True, verbose_name='Цена')
+   photo = models.ImageField(upload_to='photos/')
 
    LOAN_STATUS = (
       ('n', 'Новая'),
@@ -39,5 +40,19 @@ class Application(models.Model):
 
    status = models.CharField(max_length=1, choices=LOAN_STATUS, blank=True, default='n', help_text="Статус заявки")
 
+   def __str__(self):
+      return self.name
+
+
+class Order(models.Model):
+   user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+   created_at = models.DateTimeField(auto_now_add=True)
+   total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+
+
+class OrderItem(models.Model):
+   order = models.ForeignKey(Order, on_delete=models.CASCADE)
+   application = models.ForeignKey(Application, on_delete=models.CASCADE)
+   price = models.DecimalField(max_digits=10, decimal_places=2)
 
 

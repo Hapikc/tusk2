@@ -5,6 +5,7 @@ from .views import profile
 from .views import BBLogoutView
 from .views import RegisterUserView, RegisterDoneView
 from .views import create_application, delete_application
+from .views import select_services, review_order, order_detail
 
 
 app_name = 'catalog'
@@ -19,5 +20,7 @@ urlpatterns = [
     path('accounts/register/', RegisterUserView.as_view(), name='register'),
     path('create/', create_application, name='create_application'),
     path('delete/<int:application_id>/', delete_application, name='delete_application'),
-
+    path('select_services/', select_services, name='select_services'),
+    path('review_order/', review_order, name='review_order'),
+    path('order_detail/<int:order_id>/', order_detail, name='order_detail')
 ]

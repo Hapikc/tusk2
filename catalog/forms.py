@@ -111,7 +111,7 @@ class ApplicationForm(forms.ModelForm):
 
     class Meta:
         model = Application
-        fields = ('name', 'description', 'categories', 'photo')
+        fields = ('name', 'description', 'price', 'categories', 'photo')
 
     def clean_photo(self):
         photo = self.cleaned_data.get('photo')
@@ -120,3 +120,10 @@ class ApplicationForm(forms.ModelForm):
         if photo.image.format.lower() not in ['jpeg', 'jpg', 'png', 'bmp']:
             raise forms.ValidationError("Формат фото должен быть: jpeg, jpg, png, bmp")
         return photo
+
+
+class OrderForm(forms.Form):
+    applications = forms.ModelMultipleChoiceField(
+        queryset=Application.objects.all(),
+        widget=forms.CheckboxSelectMultiple
+    )

@@ -9,7 +9,9 @@ from .forms import RegisterUserForm
 from django.urls import reverse_lazy
 from django.views.generic.base import TemplateView
 from .forms import ApplicationForm
-from .models import Application
+from .models import Application, Order, OrderItem
+from .forms import OrderForm
+from django.db.models import Case, When
 
 
 
@@ -23,7 +25,11 @@ class BBLoginView(LoginView):
 @login_required
 def profile(request):
     applications = Application.objects.filter(user=request.user)
-    return render(request, 'registration/profile.html', {'applications': applications})
+    orders = Order.objects.filter(user=request.user)
+    return render(request, 'registration/profile.html', {
+        'applications': applications,
+        'orders': orders
+    })
 
 class BBLogoutView(LoginRequiredMixin, LogoutView):
     template_name = 'registration/logout.html'
@@ -70,5 +76,61 @@ def delete_application(request, application_id):
 
     # Отобразить форму подтверждения
     return render(request, 'application/delete_application.html', {'application': application})
+
+
+@login_required
+def select_services(request):
+    if request.method == 'POST':
+        form = OrderForm(request.POST)
+        if form.is_valid():
+            applications = form.cleaned_data['applications']
+            request.session['applications_ids'] = [app.id for app in applications]
+            return redirect('catalog:review_order')
+    else:
+        form = OrderForm()
+    return render(request, 'order/select_services.html', {'form': form})
+
+
+@login_required
+def review_order(request):
+    applications_ids = request.session.get('applications_ids', [])
+    applications = Application.objects.filter(id__in=applications_ids)
+    # Сортируем услуги в порядке выбора пользователем
+    ordered_applications = applications.order_by(
+        Case(*[When(id=pk, then=pos) for pos, pk in enumerate(applications_ids)]),
+    )
+
+    total_price = 0
+    previous_price = None
+    discounted_prices = []
+
+    for app in ordered_applications:
+        if previous_price is None:
+            # Используем app.price или 0, если price является None
+            price = app.price if app.price is not None else 0
+        else:
+            price = previous_price / 2
+        discounted_prices.append(price)
+        total_price += price
+        previous_price = price
+
+    if request.method == 'POST':
+        order = Order.objects.create(user=request.user, total_price=total_price)
+        for app, price in zip(ordered_applications, discounted_prices):
+            OrderItem.objects.create(order=order, application=app, price=price)
+        del request.session['applications_ids']
+        return redirect('catalog:profile')
+
+    context = {
+        'applications': zip(ordered_applications, discounted_prices),
+        'total_price': total_price
+    }
+    return render(request, 'order/review_order.html', context)
+
+@login_required
+def order_detail(request, order_id):
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+    order_items = order.orderitem_set.all()
+    return render(request, 'order/order_detail.html', {'order_items': order_items})
 
 
