@@ -14,8 +14,12 @@ from .forms import OrderForm
 from django.db.models import Case, When
 from django.contrib.auth.decorators import user_passes_test
 from .forms import ApplicationAdminForm
-
-
+from .forms import DiscountForm
+from django.contrib.auth import get_user_model
+import uuid
+from .models import DiscountCode
+from decimal import Decimal
+from django.contrib import messages
 
 def index(request):
     num_application_in_work = Application.objects.filter(status__exact='o').count()
@@ -25,7 +29,11 @@ def index(request):
         'index.html',
         context={'num_application_in_work': num_application_in_work, 'applications': applications})
 
-
+    orders = Order.objects.filter(user=request.user)
+    return render(request, 'registration/profile.html', {
+        'applications': applications,
+        'orders': orders
+    })
 
 
 class BBLoginView(LoginView):
@@ -104,35 +112,42 @@ def select_services(request):
 def review_order(request):
     applications_ids = request.session.get('applications_ids', [])
     applications = Application.objects.filter(id__in=applications_ids)
-    # Сортируем услуги в порядке выбора пользователем
     ordered_applications = applications.order_by(
         Case(*[When(id=pk, then=pos) for pos, pk in enumerate(applications_ids)]),
     )
 
-    total_price = 0
-    previous_price = None
-    discounted_prices = []
-
-    for app in ordered_applications:
-        if previous_price is None:
-            # Используем app.price или 0, если price является None
-            price = app.price if app.price is not None else 0
-        else:
-            price = previous_price / 2
-        discounted_prices.append(price)
-        total_price += price
-        previous_price = price
+    total_price = sum(app.price for app in ordered_applications)
+    discount_percent = Decimal('0')
 
     if request.method == 'POST':
-        order = Order.objects.create(user=request.user, total_price=total_price)
-        for app, price in zip(ordered_applications, discounted_prices):
-            OrderItem.objects.create(order=order, application=app, price=price)
+        discount_code = request.POST.get('discount_code')
+        try:
+            discount = DiscountCode.objects.get(code=discount_code, user=request.user, is_used=False)
+            discount_percent = discount.discount_percent
+            discount.is_used = True
+            discount.save()
+        except DiscountCode.DoesNotExist:
+            # Обработка ошибки неверного кода скидки
+            pass
+
+    discount_amount = (discount_percent / Decimal(100)) * total_price
+    total_price -= discount_amount
+
+    if request.method == 'POST':
+        order = Order.objects.create(
+            user=request.user,
+            total_price=total_price,
+            discount_percent=discount_percent
+        )
+        for app in ordered_applications:
+            OrderItem.objects.create(order=order, application=app, price=app.price)
         del request.session['applications_ids']
         return redirect('catalog:profile')
 
     context = {
-        'applications': zip(ordered_applications, discounted_prices),
-        'total_price': total_price
+        'applications': ordered_applications,
+        'total_price': total_price,
+        'discount_percent': discount_percent,
     }
     return render(request, 'order/review_order.html', context)
 
@@ -167,5 +182,23 @@ def edit_application(request, application_id):
 def admin_profile(request):
     applications = Application.objects.all()
     return render(request, 'registration/admin_profile.html', {'applications': applications})
+
+
+User = get_user_model()
+
+def assign_discount(request):
+    if request.method == 'POST':
+        form = DiscountForm(request.POST)
+        if form.is_valid():
+            user = form.cleaned_data['user']
+            discount_percent = form.cleaned_data['discount_percent']
+            code = str(uuid.uuid4())[:8]  # Generate a unique code
+            DiscountCode.objects.create(user=user, discount_percent=discount_percent, code=code)
+            messages.success(request, f'Код скидки {code} назначен пользователю {user.username}.')
+            # Optionally, notify the user about the discount code
+            return redirect('catalog:admin_profile')
+    else:
+        form = DiscountForm()
+    return render(request, 'admin/assign_discount.html', {'form': form})
 
 

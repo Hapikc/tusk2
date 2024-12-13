@@ -1,24 +1,18 @@
 {% extends "index.html" %}
 {% block content %}
-<h2>Просмотр заказа</h2>
-<table>
-    <thead>
-        <tr>
-            <th>Цена со скидкой</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for app, price in applications %}
-        <tr>
-            <td>{{ app.name }}</td>
-            <td>{{ price }} руб.</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-<p>Общая стоимость: {{ total_price }} руб.</p>
+<h2>Просмотр заказов</h2>
+<ul>
+    {% for app in applications %}
+    <li>{{ app.name }} - {{ app.price }} руб.</li>
+    {% endfor %}
+</ul>
+<p>Итоговая сумма: {{ total_price }} руб.</p>
+{% if discount_percent > 0 %}
+    <p>Скидка применена: {{ discount_percent }}%</p>
+{% endif %}
 <form method="post">
     {% csrf_token %}
-    <button type="submit">Подтвердить заказ</button>
+     <input type="text" name="discount_code" placeholder="Введите код скидки">
+    <button type="submit">Применить скидку</button>
 </form>
 {% endblock %}

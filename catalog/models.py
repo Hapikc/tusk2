@@ -3,12 +3,15 @@ from django.contrib.auth.models import AbstractUser
 from django.conf import settings
 
 
+
 class AdvUser(AbstractUser):
    is_activated = models.BooleanField(default=True, db_index=True,verbose_name='Прошел активацию?')
    last_name = models.CharField(max_length=100, blank=True, verbose_name='Фамилия')
    first_name = models.CharField(max_length=100, blank=True, verbose_name='Имя')
    patronymic = models.CharField(max_length=100, blank=True, verbose_name='Отчество')
    consent = models.BooleanField(default=False, verbose_name='Согласие на обработку персональных данных')
+
+
 
 
    class Meta(AbstractUser.Meta):
@@ -49,6 +52,7 @@ class Order(models.Model):
    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
    created_at = models.DateTimeField(auto_now_add=True)
    total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+   discount_percent = models.DecimalField(max_digits=5, decimal_places=2, default=0)
 
 
 class OrderItem(models.Model):
@@ -57,3 +61,10 @@ class OrderItem(models.Model):
    price = models.DecimalField(max_digits=10, decimal_places=2)
 
 
+
+
+class DiscountCode(models.Model):
+    code = models.CharField(max_length=50, unique=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    discount_percent = models.DecimalField(max_digits=5, decimal_places=2)
+    is_used = models.BooleanField(default=False)

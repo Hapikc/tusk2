@@ -36,51 +36,60 @@ box-shadow">
         {% endif %}
 
 
-</div>
-<div class="row">
-    <nav class="col-md-auto nav flex-column" style="margin-left: 35px">
-        <a style="color: black" class="nav-link root" href="{% url 'catalog:index' %} ">Главная</a>
-        {% if user.is_staff %}
-                    <a style="color: black;" class="nav-link root" href="{% url 'catalog:admin_profile' %}">Профиль администратора</a>
-                {% endif %}
+    </div>
+    <div class="row">
+        <nav class="col-md-auto nav flex-column" style="margin-left: 35px">
+            <a style="color: black" class="nav-link root" href="{% url 'catalog:index' %} ">Главная</a>
+            {% if user.is_staff %}
+            <a style="color: black;" class="nav-link root" href="{% url 'catalog:admin_profile' %}">Профиль
+                администратора</a>
+            {% endif %}
 
-    </nav>
-    <div class="container">
-        {% bootstrap_messages %}
-        {% block content %}
-        <p class="p-2 text-dark" style="margin-left: 8px">В работе: {{ num_application_in_work }}</p>
+        </nav>
+        <div class="container">
+            {% bootstrap_messages %}
+            {% block content %}
+            <p class="p-2 text-dark" style="margin-left: 8px">В работе: {{ num_application_in_work }}</p>
 
-        {% if applications %}
-        <div class="row">
-            {% for application in applications %}
-            <div class="col-md-6 col-lg-4 mb-4">
-                <div class="card">
-                    {% if application.photo %}
-                    <img src="{{ application.photo.url }}" class="card-img-top app-img" alt="Фото заявки">
-                    {% endif %}
-                    <div class="card-body">
-                        <p class="card-text">{{ application.date }}</p>
-                        <h5 class="card-title">{{ application.name }}</h5>
-                        <p class="card-text">{{ application.description }}</p>
-                        <p class="card-text">Статус: {{ application.get_status_display }}</p>
-                        <p class="card-text">Категории: {{ application.categories.all|join:', ' }}</p>
-                        <p class="card-text">Цена: {{ application.price}}</p>
+            {% if applications %}
+            <div class="row">
+                {% for application in applications %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card">
+                        {% if application.photo %}
+                        <img src="{{ application.photo.url }}" class="card-img-top app-img" alt="Фото заявки">
+                        {% endif %}
+                        <div class="card-body">
+                            <p class="card-text">{{ application.date }}</p>
+                            <h5 class="card-title">{{ application.name }}</h5>
+                            <p class="card-text">{{ application.description }}</p>
+                            <p class="card-text">Статус: {{ application.get_status_display }}</p>
+                            <p class="card-text">Категории: {{ application.categories.all|join:', ' }}</p>
+                            <p class="card-text">Цена: {{ application.price}}</p>
+                            <p class="card-text">Комментарий: {{ application.comment }}</p>
+                        </div>
                     </div>
                 </div>
+                {% endfor %}
+                {% if messages %}
+                <ul class="messages">
+                    {% for message in messages %}
+                    <li>{{ message }}</li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
             </div>
-            {% endfor %}
-        </div>
-        {% else %}
-        <div class="row">
-            <div class="col-12">
-                <p class="text-center">У вас нет заявок.</p>
+            {% else %}
+            <div class="row">
+                <div class="col-12">
+                    <p class="text-center">У вас нет заявок.</p>
+                </div>
             </div>
-        </div>
-        {% endif %}
+            {% endif %}
 
-        {% endblock %}
+            {% endblock %}
+        </div>
     </div>
-</div>
 </div>
 
 

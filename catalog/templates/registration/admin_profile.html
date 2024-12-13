@@ -21,8 +21,9 @@
                     <p class="card-text">Цена: {{ application.price}}</p>
                     <p class="card-text">Комментарий: {{ application.comment }}</p>
                 </div>
-                <div class="card-footer text-center">
-                    <a href="{% url 'catalog:edit_application' application.id %}">Редактировать</a>
+                <div style="display: flex; flex-direction: column" class="card-footer text-center">
+                    <a style="border-bottom: 3px solid;" href="{% url 'catalog:edit_application' application.id %}">Редактировать</a>
+                    <a href="{% url 'catalog:assign_discount' %}">Задать скидку</a>
                 </div>
             </div>
         </div>

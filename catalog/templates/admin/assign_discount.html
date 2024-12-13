@@ -1,0 +1,9 @@
+{% extends "index.html" %}
+{% block content %}
+<h2>Назначить скидку</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Подвердить скидку</button>
+</form>
+{% endblock %}

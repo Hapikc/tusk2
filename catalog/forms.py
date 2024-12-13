@@ -1,10 +1,11 @@
 from django import forms
+from django.contrib.auth.models import User
 from django.contrib.auth import password_validation
 from django.core.exceptions import ValidationError
 from .models import AdvUser
 from django.core.validators import RegexValidator
 from .models import Application, Categories
-
+from django.contrib.auth import get_user_model
 
 
 class ChangeUserInfoForm(forms.ModelForm):
@@ -133,3 +134,15 @@ class ApplicationAdminForm(forms.ModelForm):
     class Meta:
         model = Application
         fields = ('status', 'categories', 'photo', 'comment')
+
+
+User = get_user_model()
+
+class DiscountForm(forms.Form):
+    user = forms.ModelChoiceField(queryset=None)
+    discount_percent = forms.DecimalField(max_value=10, min_value=0, decimal_places=2)
+
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['user'].queryset = User.objects.all()

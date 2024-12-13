@@ -44,6 +44,7 @@
                     <p class="card-text">Категории: {{ application.categories.all|join:', ' }}</p>
                     <p class="card-text">Цена: {{ application.price}}</p>
                 </div>
+                <a href="{% url 'catalog:select_services' %}" class="btn btn-success">Сделать заказ</a>
                 <div class="card-footer text-center">
                    {% if application.status == 'n' %}
                         <a href="{% url 'catalog:delete_application' application.id %}">Удалить</a>
@@ -54,6 +55,18 @@
             </div>
         </div>
         {% endfor %}
+        <h2>Мои заказы</h2>
+{% if orders %}
+<ul>
+    {% for order in orders %}
+    <li>
+        ID Заказа: {{ order.id }} - Итоговая стоимость: {{ order.total_price }} руб.
+    </li>
+    {% endfor %}
+</ul>
+{% else %}
+<p>Заказов еще нет.</p>
+{% endif %}
     </div>
     {% else %}
     <div class="row">
