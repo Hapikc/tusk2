@@ -24,7 +24,7 @@ class Categories(models.Model):
 
 class Application(models.Model):
    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, verbose_name='Пользователь')
-
+   date = models.DateField(null=True, blank=True)
    name = models.CharField(max_length=100, blank=True,verbose_name='Название')
    description = models.TextField(max_length=100, verbose_name='описание')
    categories = models.ManyToManyField(Categories, help_text='Описание')

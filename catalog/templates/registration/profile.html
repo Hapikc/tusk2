@@ -39,6 +39,7 @@
                 <img src="path_to_default_image" class="card-img-top app-img" alt="Фото заявки">
                 {% endif %}
                 <div class="card-body">
+                    <p class="card-text">{{ application.date }}</p>
                     <h5 class="card-title">{{ application.name }}</h5>
                     <p class="card-text">{{ application.description }}</p>
                     <p class="card-text">Статус: {{ application.get_status_display }}</p>

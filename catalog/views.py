@@ -16,7 +16,14 @@ from django.db.models import Case, When
 
 
 def index(request):
-    return render(request, 'index.html')
+    num_application_in_work = Application.objects.filter(status__exact='o').count()
+    applications = Application.objects.filter(status='n').order_by('-date')[:4]
+    return render(
+        request,
+        'index.html',
+        context={'num_application_in_work': num_application_in_work, 'applications': applications})
+
+
 
 
 class BBLoginView(LoginView):

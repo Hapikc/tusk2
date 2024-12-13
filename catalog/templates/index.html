@@ -11,6 +11,12 @@
     <title>{% block title %} Главная {% endblock %}</title>
 </head>
 <body>
+<style>
+    .app-img {
+        height: 200px;
+        object-fit: cover;
+    }
+</style>
 <div class="container-fluid">
     <div class="d-flex flex-column flex-md-row p-3 px-md-4 mb-3 bg-white border-bottom
 box-shadow">
@@ -19,27 +25,63 @@ box-shadow">
         <a style="margin-top:3px" class="p-2 text-dark" href="{% url 'catalog:profile' %}">Профиль</a>
         <form class="p-2 text-dark" action="{% url 'catalog:logout' %}" method="POST">
             {% csrf_token %}
-        <button class="dropdown-item" type="submit">Выйти</button>
+            <button class="dropdown-item" type="submit">Выйти</button>
         </form>
         {% else %}
         <form action="{% url 'catalog:register' %}">
-        <button style="border:none; background-color: #fff;" type="submit" class="p-2 text-dark">Регистрация</button>
+            <button style="border:none; background-color: #fff;" type="submit" class="p-2 text-dark">Регистрация
+            </button>
         </form>
         <a class="p-2 text-dark" href="{% url 'catalog:login' %}">Вход</a>
         {% endif %}
 
-    </div>
-    <div class="row">
-        <nav class="col-md-auto nav flex-column" style="margin-left: 35px">
-            <a style="color: black" class="nav-link root" href="{% url 'catalog:index' %} ">Главная</a>
-        </nav>
-        <div class="container">
-            {% bootstrap_messages %}
-            {% block content %}
-            {% endblock %}
-        </div>
-    </div>
 
 </div>
+<div class="row">
+    <nav class="col-md-auto nav flex-column" style="margin-left: 35px">
+        <a style="color: black" class="nav-link root" href="{% url 'catalog:index' %} ">Главная</a>
+
+    </nav>
+    <div class="container">
+        {% bootstrap_messages %}
+        {% block content %}
+        <p class="p-2 text-dark" style="margin-left: 8px">В работе: {{ num_application_in_work }}</p>
+
+        {% if applications %}
+        <div class="row">
+            {% for application in applications %}
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card">
+                    {% if application.photo %}
+                    <img src="{{ application.photo.url }}" class="card-img-top app-img" alt="Фото заявки">
+                    {% else %}
+                    <img src="path_to_default_image" class="card-img-top app-img" alt="Фото заявки">
+                    {% endif %}
+                    <div class="card-body">
+                        <p class="card-text">{{ application.date }}</p>
+                        <h5 class="card-title">{{ application.name }}</h5>
+                        <p class="card-text">{{ application.description }}</p>
+                        <p class="card-text">Статус: {{ application.get_status_display }}</p>
+                        <p class="card-text">Категории: {{ application.categories.all|join:', ' }}</p>
+                        <p class="card-text">Цена: {{ application.price}}</p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="row">
+            <div class="col-12">
+                <p class="text-center">У вас нет заявок.</p>
+            </div>
+        </div>
+        {% endif %}
+
+        {% endblock %}
+    </div>
+</div>
+</div>
+
+
 </body>
 </html>

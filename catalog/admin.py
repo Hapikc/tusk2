@@ -5,7 +5,8 @@ from .models import Application
 
 
 class ApplicationAdmin(admin.ModelAdmin):
-    list_display = ('name', 'description', 'price', 'status')
+    model = Application
+    list_display = ('name', 'description', 'price', 'photo', 'status', 'date')
 
 admin.site.register(AdvUser)
 admin.site.register(Categories)
