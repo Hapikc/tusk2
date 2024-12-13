@@ -19,15 +19,15 @@
             {% endif %}
         </div>
     </div>
-    <div class="row justify-content-center mb-4">
-        <div class="col-md-6 text-center">
+    <div class="row mb-4">
+        <div class="col-md-6">
             <form action="{% url 'catalog:create_application' %}" method="POST">
                 {% csrf_token %}
-                <button type="submit" class="btn btn-primary">Создать заявку</button>
+                <button type="submit">Создать заявку</button>
             </form>
         </div>
     </div>
-    <h2>Мои заявки</h2>
+    <h4>Мои заявки</h4>
     {% if applications %}
     <div class="row">
         {% for application in applications %}
@@ -35,8 +35,6 @@
             <div class="card">
                 {% if application.photo %}
                 <img src="{{ application.photo.url }}" class="card-img-top app-img" alt="Фото заявки">
-                {% else %}
-                <img src="path_to_default_image" class="card-img-top app-img" alt="Фото заявки">
                 {% endif %}
                 <div class="card-body">
                     <p class="card-text">{{ application.date }}</p>
@@ -44,28 +42,18 @@
                     <p class="card-text">{{ application.description }}</p>
                     <p class="card-text">Статус: {{ application.get_status_display }}</p>
                     <p class="card-text">Категории: {{ application.categories.all|join:', ' }}</p>
-                    <p class="card-text">Цена: {{ item.application.name }} - {{ application.price }} руб.</p>
+                    <p class="card-text">Цена: {{ application.price}}</p>
                 </div>
-                <a href="{% url 'catalog:select_services' %}" class="btn btn-success">Сделать заказ</a>
                 <div class="card-footer text-center">
-                    <a href="{% url 'catalog:delete_application' application.id %}" class="btn btn-danger">Удалить</a>
+                   {% if application.status == 'n' %}
+                        <a href="{% url 'catalog:delete_application' application.id %}">Удалить</a>
+                    {% else %}
+                        <p class="text-muted">Удаление недоступно</p>
+                    {% endif %}
                 </div>
             </div>
         </div>
         {% endfor %}
-        <h2>Мои заказы</h2>
-{% if orders %}
-<ul>
-    {% for order in orders %}
-    <li>
-        Order ID: {{ order.id }} - Total Price: {{ order.total_price }} руб.
-        <a href="{% url 'catalog:order_detail' order.id %}">Просмотреть детали</a>
-    </li>
-    {% endfor %}
-</ul>
-{% else %}
-<p>Заказов еще нет.</p>
-{% endif %}
     </div>
     {% else %}
     <div class="row">

@@ -127,3 +127,9 @@ class OrderForm(forms.Form):
         queryset=Application.objects.all(),
         widget=forms.CheckboxSelectMultiple
     )
+
+
+class ApplicationAdminForm(forms.ModelForm):
+    class Meta:
+        model = Application
+        fields = ('status', 'categories', 'photo', 'comment')

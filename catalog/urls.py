@@ -22,5 +22,8 @@ urlpatterns = [
     path('delete/<int:application_id>/', delete_application, name='delete_application'),
     path('select_services/', select_services, name='select_services'),
     path('review_order/', review_order, name='review_order'),
-    path('order_detail/<int:order_id>/', order_detail, name='order_detail')
+    path('order_detail/<int:order_id>/', order_detail, name='order_detail'),
+    path('admin_profile/', views.admin_profile, name='admin_profile'),
+    path('create_application/', views.create_application, name='create_application'),
+    path('edit_application/<int:application_id>/', views.edit_application, name='edit_application'),
 ]

@@ -29,7 +29,8 @@ class Application(models.Model):
    description = models.TextField(max_length=100, verbose_name='описание')
    categories = models.ManyToManyField(Categories, help_text='Описание')
    price = models.DecimalField(max_digits=10, decimal_places=2, null=True, verbose_name='Цена')
-   photo = models.ImageField(upload_to='photos/')
+   photo = models.ImageField(null=True, upload_to='photos/')
+   comment = models.TextField(null=True, blank=True, verbose_name='Комментарий администратора')
 
    LOAN_STATUS = (
       ('n', 'Новая'),

@@ -40,6 +40,9 @@ box-shadow">
 <div class="row">
     <nav class="col-md-auto nav flex-column" style="margin-left: 35px">
         <a style="color: black" class="nav-link root" href="{% url 'catalog:index' %} ">Главная</a>
+        {% if user.is_staff %}
+                    <a style="color: black;" class="nav-link root" href="{% url 'catalog:admin_profile' %}">Профиль администратора</a>
+                {% endif %}
 
     </nav>
     <div class="container">
@@ -54,8 +57,6 @@ box-shadow">
                 <div class="card">
                     {% if application.photo %}
                     <img src="{{ application.photo.url }}" class="card-img-top app-img" alt="Фото заявки">
-                    {% else %}
-                    <img src="path_to_default_image" class="card-img-top app-img" alt="Фото заявки">
                     {% endif %}
                     <div class="card-body">
                         <p class="card-text">{{ application.date }}</p>

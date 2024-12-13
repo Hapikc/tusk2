@@ -1,0 +1,39 @@
+{% extends "index.html" %}
+{% block title %} Профиль администратора {% endblock %}
+{% block content %}
+<div class="container mt-5">
+    <h2>Профиль администратора</h2>
+    <h4>Все заявки</h4>
+    {% if applications %}
+    <div class="row">
+        {% for application in applications %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card">
+                {% if application.photo %}
+                <img src="{{ application.photo.url }}" class="card-img-top app-img" alt="Фото заявки">
+                {% endif %}
+                <div class="card-body">
+                    <p class="card-text">{{ application.date }}</p>
+                    <h5 class="card-title">{{ application.name }}</h5>
+                    <p class="card-text">{{ application.description }}</p>
+                    <p class="card-text">Статус: {{ application.get_status_display }}</p>
+                    <p class="card-text">Категории: {{ application.categories.all|join:', ' }}</p>
+                    <p class="card-text">Цена: {{ application.price}}</p>
+                    <p class="card-text">Комментарий: {{ application.comment }}</p>
+                </div>
+                <div class="card-footer text-center">
+                    <a href="{% url 'catalog:edit_application' application.id %}">Редактировать</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="row">
+        <div class="col-12">
+            <p class="text-center">Нет заявок.</p>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

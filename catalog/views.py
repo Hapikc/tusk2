@@ -12,12 +12,14 @@ from .forms import ApplicationForm
 from .models import Application, Order, OrderItem
 from .forms import OrderForm
 from django.db.models import Case, When
+from django.contrib.auth.decorators import user_passes_test
+from .forms import ApplicationAdminForm
 
 
 
 def index(request):
     num_application_in_work = Application.objects.filter(status__exact='o').count()
-    applications = Application.objects.filter(status='n').order_by('-date')[:4]
+    applications = Application.objects.filter(status='d').order_by('-date')[:4]
     return render(
         request,
         'index.html',
@@ -139,5 +141,31 @@ def order_detail(request, order_id):
     order = get_object_or_404(Order, id=order_id, user=request.user)
     order_items = order.orderitem_set.all()
     return render(request, 'order/order_detail.html', {'order_items': order_items})
+
+@login_required
+@user_passes_test(lambda u: u.is_staff)
+def edit_application(request, application_id):
+    application = get_object_or_404(Application, id=application_id)
+    if request.method == 'POST':
+        form = ApplicationAdminForm(request.POST, request.FILES, instance=application)
+        if form.is_valid():
+            application = form.save(commit=False)
+            if application.status == 'd' and not application.photo:
+                form.add_error('photo', 'Необходимо загрузить фотографию для заявки со статусом "Выполнена"')
+            elif application.status == 'o' and not application.comment:
+                form.add_error('comment', 'Необходимо добавить комментарий для заявки со статусом "Принята в работу"')
+            else:
+                application.save()
+                return redirect('catalog:profile')
+    else:
+        form = ApplicationAdminForm(instance=application)
+    return render(request, 'application/edit_application.html', {'form': form, 'application': application})
+
+
+@login_required
+@user_passes_test(lambda u: u.is_staff)
+def admin_profile(request):
+    applications = Application.objects.all()
+    return render(request, 'registration/admin_profile.html', {'applications': applications})
 
 

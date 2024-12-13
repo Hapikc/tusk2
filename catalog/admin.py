@@ -4,10 +4,11 @@ from .models import Categories
 from .models import Application
 
 
+@admin.register(Application)
 class ApplicationAdmin(admin.ModelAdmin):
     model = Application
-    list_display = ('name', 'description', 'price', 'photo', 'status', 'date')
+    list_display = ('date', 'name', 'description', 'photo', 'price')
 
 admin.site.register(AdvUser)
 admin.site.register(Categories)
-admin.site.register(Application, ApplicationAdmin)
+
